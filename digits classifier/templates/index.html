@@ -1,0 +1,190 @@
+<html>
+  <head>
+  <meta charset="UTF-8">
+<title>i am BAI</title>
+  <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}" >
+  
+<style>
+
+#header{
+   height:100px;
+   background: linear-gradient(to top, #ffffff, blue);
+   text-align:center;
+   font-size:80;
+   font-family:"algerian";
+   letter-spacing:50px;
+   }
+
+.view {perspective: none;}
+
+
+.rotate{
+	transform:rotateY(0deg);
+	transition: transform 1s;
+	box-shadow:-3px 10px 5px grey;
+}
+
+#animate{
+padding-top:100px;
+
+
+border-radius:50%;
+float:left;
+width:180px;
+height:200px;
+
+}
+#inbrain{
+
+background-image:url("{{url_for('static',filename='images/think.png')}}");
+ background-repeat: no-repeat;
+
+}
+
+</style>
+<!-- script to seralize and send image -->
+<script>	
+	var canvas;
+	var ctx ;  	
+	function predict(){
+    canvas = document.getElementById('myCanvas');
+	ctx = canvas.getContext('2d'); 
+    var img=ctx.getImageData(0,0,280,280)
+	
+	send_image(img)
+	}
+	
+	function send_image(img) {
+	
+    var xhttp = new XMLHttpRequest();
+//	console.log(img.data)
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+		  result=document.getElementById("result");
+		  result.innerHTML ="is it "+this.responseText;
+       }
+    };
+	url="/my_function";
+	xhttp.open("POST", url, true);
+	xhttp.setRequestHeader("Content-type", "text/plain");
+	xhttp.send("="+img.data);
+	run();
+
+}
+
+function vanish(){
+	document.getElementById("result").innerHTML="";
+	var canvas = document.getElementById('myCanvas');
+	var ctx = canvas.getContext('2d');
+	ctx.clearRect(0,0,280,280)
+}
+
+var rot=0;
+function run(){
+//snatching control from button
+	document.getElementsByClassName('button')[0].setAttribute('onclick','');
+	document.getElementById('paint').style.perspective='300px';
+	elmt=document.getElementsByClassName('rotate')[0];
+//return back rotating right
+	setTimeout(function(){
+	rot=0;
+// 0 deg
+	setTimeout(function(){
+	document.getElementById('animate').setAttribute('src',"{{url_for('static',filename='images/think.jpg')}}");
+
+	document.getElementById('paint').style.perspective='none';
+//if no result
+	if((document.getElementById("result").innerHTML).length<3)
+	document.getElementById("result").innerHTML='hmm i am bit confused';
+		document.getElementsByClassName('button')[0].setAttribute('onclick','vanish()');
+	},1000);
+	elmt.style.transform='rotateY('+rot+'deg)';
+
+	},2000);
+//first executed and gif loaded 
+//rotate left
+	rot=-25;
+	elmt.style.transform='rotateY('+rot+'deg)';
+	document.getElementById('animate').setAttribute('src',"{{url_for('static',filename='images/think.gif')}}");
+}
+	 </script>
+	
+  </head>
+  <body>
+   <div id='header' style='' >BAI</div>
+
+	<div class='info'></div>
+	<table id='inbrain' border=0 align="center" width='800px' >
+	<tr>
+
+	<th   height='100px' >
+	<div id="result" style='font-size:30;font-family:"Comic Sans MS";'>ASK !!</div>
+	</th>
+
+	</tr>
+	<tr>
+	<td >
+		<img id='animate'  src="{{url_for('static',filename='images/think.jpg')}}" />
+     	<div id="paint" class='view'><canvas id="myCanvas" class='rotate' style="border:2px dashed;"></canvas>	</div>
+	</td>
+	</tr>
+	<tr>
+		<td>
+	    <div class="controller" align='center'><button class="button" style="vertical-align:middle"   onclick="vanish()"><span>CLEAR</span></button> 
+	    </td>
+	</tr>
+	
+	
+	</table>
+	
+
+		
+	<!-- script to canavas paint  -->
+	<script>
+		
+	var canvas = document.getElementById('myCanvas');
+	var ctx = canvas.getContext('2d');
+	 
+	var painting = document.getElementById('paint');
+	var paint_style = getComputedStyle(painting);
+	canvas.width = parseInt(paint_style.getPropertyValue('width'));
+	canvas.height = parseInt(paint_style.getPropertyValue('height'));
+    //console.log(canvas.height);
+	var mouse = {x: 0, y: 0};
+	 
+	ctx.lineWidth = 15;
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
+	ctx.strokeStyle = 'black';
+
+	 canvas.addEventListener('mousemove', function(e) {
+	  mouse.x = e.pageX - this.offsetLeft;
+	  mouse.y = e.pageY - this.offsetTop;
+	});
+
+	 
+	canvas.addEventListener('mousedown', function(e) {
+		ctx.beginPath();
+		ctx.moveTo(mouse.x, mouse.y);
+		 
+		canvas.addEventListener('mousemove', onPaint);
+		});
+	 
+	canvas.addEventListener('mouseup', function() {
+		canvas.removeEventListener('mousemove', onPaint);
+		predict();
+	});
+	 
+	var onPaint = function() {
+		ctx.lineTo(mouse.x, mouse.y);
+		ctx.stroke();
+		
+	};
+	
+	
+	</script>
+		
+
+	</body>
+	
+</html>
